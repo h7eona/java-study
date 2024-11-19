@@ -11,9 +11,14 @@ public class Sol04 {
 		Scanner scanner = new Scanner(System.in);
 		
 		String str = scanner.nextLine();
-		System.out.println(str.length());
-		System.out.println(str.charAt(1));
-
+		
+		for (int i=1; i<str.length(); i++) {
+			for (int j=0; j<i; j++) {
+				System.out.print(str.charAt(j));
+			}
+			System.out.println();
+		}
+		System.out.println(str);
 		scanner.close();
 	}
 }
