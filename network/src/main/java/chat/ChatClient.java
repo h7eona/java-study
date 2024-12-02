@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ChatClient {
-	private static final String SERVER_IP = "192.168.0.3";
+	private static final String SERVER_IP = "127.0.0.1";
 	public static void main(String[] args) {
 		Scanner scanner = null;
 		Socket socket = null;
@@ -37,19 +37,27 @@ public class ChatClient {
 				String message = scanner.nextLine();
 				
 				if ("quit".equals(message)) {
+					pw.println("quit");
+				
+					try {
+						if(socket != null && !socket.isClosed()) {
+							socket.close();
+						}
+					} catch(IOException e) {
+						e.printStackTrace();
+					}
+					ChatServer.consoleLog("채팅방에서 퇴장하셨습니다.");
 					break;
 				} else {
-					pw.println(message);
+					pw.println("message:" + message);
 				}
 			}
-		
 		} catch (IOException e) {
 			ChatServer.consoleLog("error: " + e);
 		} finally {
 			try {
-				if (scanner != null) {
-					scanner.close();
-				}
+				scanner.close();
+				
 				if(socket != null && !socket.isClosed()) {
 					socket.close();
 				}

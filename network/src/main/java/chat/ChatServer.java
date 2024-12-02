@@ -12,16 +12,16 @@ import java.util.List;
 
 public class ChatServer {
 	public static final int PORT = 6666;
+	private static List<PrintWriter> listWriters = new ArrayList<PrintWriter>();
 	
 	public static void main(String[] args) {
-		List<PrintWriter> listWriters = new ArrayList<PrintWriter>();
 		ServerSocket serverSocket = null;
 		
 		try {
 			serverSocket = new ServerSocket();
 			
 			String hostAddress = InetAddress.getLocalHost().getHostAddress();
-			serverSocket.bind(new InetSocketAddress(hostAddress, PORT));
+			serverSocket.bind(new InetSocketAddress("0.0.0.0", PORT));
 			consoleLog("연결 기다림 " + hostAddress + " : " + PORT);
 			
 			while(true) {

@@ -14,6 +14,7 @@ public class ChatServerThread extends Thread {
 	private String nickname;
 	private Socket socket;
 	List<PrintWriter> listWriters;
+	private PrintWriter pw;
 	
 	public ChatServerThread(Socket socket, List<PrintWriter> listWriters) {
 		this.socket = socket;
@@ -28,12 +29,11 @@ public class ChatServerThread extends Thread {
 			ChatServer.consoleLog("connected by client[" + remoteHostAddress + ":" + remotePort + "]");
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "utf-8"));	
-			PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
-			
-			String request = null;
+			pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"), true);
 			
 			while(true) {
-				request = br.readLine();
+				String request = br.readLine();
+				
 				if(request == null) {
 					ChatServer.consoleLog("closed by client");
 					doQuit(pw);
@@ -43,16 +43,21 @@ public class ChatServerThread extends Thread {
 				String[] tokens = request.split(":");
 				if ("join".equals(tokens[0])) {
 					doJoin(tokens[1], pw);
+					
 				} else if ("message".equals(tokens[0])){
 					doMessage(tokens[1]);
+					
 				} else if ("quit".equals(tokens[0])) {
 					doQuit(pw);
+					break;
+					
 				} else {
 					ChatServer.consoleLog("에러: 알 수 없는 요청(" + tokens[0] + ")");
 				}
 				
 			}
 		} catch (SocketException e) {
+			doQuit(pw);
 			ChatServer.consoleLog("Socket Exception" + e);
 		} catch (IOException e) {
 			ChatServer.consoleLog("error " + e);
@@ -94,7 +99,8 @@ public class ChatServerThread extends Thread {
 	}
 	
 	private void doMessage(String message) {
-		broadcast(message);
+		String data = nickname + ":" + message;
+		broadcast(data);
 	}
 	
 	private void doQuit(PrintWriter writer) {
@@ -102,6 +108,14 @@ public class ChatServerThread extends Thread {
 		
 		String data = nickname + "님이 퇴장하였습니다.";
 		broadcast(data);
+		
+		if(socket != null && !socket.isClosed()) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private void removeWriter(PrintWriter writer) {
