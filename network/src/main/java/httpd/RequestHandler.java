@@ -11,6 +11,7 @@ import java.nio.file.Files;
 
 public class RequestHandler extends Thread {
 	private Socket socket;
+	private final String DOCUMENT_ROOT = "./webapp";
 	
 	public RequestHandler( Socket socket ) {
 		this.socket = socket;
@@ -88,7 +89,7 @@ public class RequestHandler extends Thread {
 			url = "/index.html";
 		}
 		
-		File file = new File("./webapp" + url);
+		File file = new File(DOCUMENT_ROOT + url);
 		if(!file.exists()) {
 			response404Error(os, protocol);
 			return;
@@ -98,7 +99,7 @@ public class RequestHandler extends Thread {
 		byte[] body = Files.readAllBytes(file.toPath());
 		String contentType = Files.probeContentType(file.toPath());
 		
-		os.write("HTTP/1.1 200 OK\r\n".getBytes("UTF-8"));
+		os.write((protocol + " 200 OK\r\n").getBytes("UTF-8"));
 		os.write(("Content-Type:" + contentType + "; charset=utf-8\r\n").getBytes("UTF-8"));
 		os.write("\n".getBytes());
 		os.write(body);
@@ -109,6 +110,12 @@ public class RequestHandler extends Thread {
 	}
 	
 	public void response404Error(OutputStream os, String protocol) {
+		/*
+		 HTTP/1.1 404 File Not Found\n
+		 Content-Type: text/html; charset=utf-8\n
+		 \n
+		 */
+		
 		File errorfile01 = new File("./webapp/error/404.html");
 		
 		byte[] body;
@@ -125,6 +132,12 @@ public class RequestHandler extends Thread {
 	}
 	
 	public void response400Error(OutputStream os, String protocol) {
+		/*
+		 HTTP/1.1 400 File Not Found\n
+		 Content-Type: text/html; charset=utf-8\n
+		 \n
+		 */
+		
 		File errorfile02 = new File("./webapp/error/400.html");
 		byte[] body;
 		
